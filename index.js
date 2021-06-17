@@ -67,3 +67,95 @@ async function updateValueFromInput(from, to) {
     }
 
 }
+
+//******************************************************************************************************************//
+//                         Добавляем все слушатели                                                                  //
+//                                                                                                                  //
+//******************************************************************************************************************//
+
+//******************************************************************************************************************//
+//                    Код для правой секции (валюты + инпуты пользовательского ввода)                               //
+//                                                                                                                  //
+//******************************************************************************************************************//
+
+/** Устанавливаем валюту в правом инпуте*/
+//  Переменую подаём на вход  функцию updateFetch  по одному значеию из правого и левго инпута  Далее закрашиваем кнопку  в цвет из макета и сбрасываем цвет на базовый для остальных  
+
+function changeColorBtn(butonSide, selectSide, currency) {
+    butonSide.forEach((item) => {
+        item.style.color = '#C6C6C6';
+        item.style.backgroundColor = 'white';
+    });
+    selectSide.style.color = '#C6C6C6';
+    selectSide.style.backgroundColor = 'white';
+
+    // Идём по массиву  и с помощью  find находим кнопку значение которой равно значению валюты из currency и find  возвращает эту кнопку и закрашивает её. Если таой кнопки нет, тогда был клик по селекту и мы в else закрашиваем селект
+    let btnWhenChangeColor = butonSide.find((item) => {
+
+        return item.innerText === currency;
+    })
+    if (btnWhenChangeColor) {
+        btnWhenChangeColor.style.color = '#FFFFFF';
+        btnWhenChangeColor.style.backgroundColor = '#833AE0';
+    } else {
+        selectSide.style.color = '#FFFFFF';
+        selectSide.style.backgroundColor = '#833AE0';
+        selectSide.value = currency;
+    }
+
+    // currencyCalculationRight();
+}
+
+//  достаём значение кнопки через event.target.innerText (вот тут : buttonsRight.forEach((item)) на строке 84 потом записываем в обьявленую глобалью переменную и меняем цвет
+function currRightButtons(currency) {
+    currencyRight = currency;
+
+    changeColorBtn(buttonsRight, selectRight, currency);                                // Идём по массиву сбрасываем всех в серый цвет                                                                                            // Присваеваем глобальной переменной  currencyRight значение валюты из currency
+    // получаем значения из сервера и записываем внизу в инпуте в окне с курсами валют 
+    updateValueFromInput(currencyLeft, currencyRight)
+        .then((dataObject) => {
+            currentExchangeRateRight.innerText = `1 ${currencyLeft}  = ${dataObject.dataFrom.toFixed(4)} ${currencyRight}`;
+            currentExchangeRateLeft.innerText = `1 ${currencyRight} = ${dataObject.dataTo.toFixed(4)}  ${currencyLeft}`;
+            textInputRight.value = textInputLeft.value * dataObject.dataFrom.toFixed(4);
+
+        })
+}
+// при выборе валюты в селекте, значением select.value является строка с значением самой валюты и мы с эти значеиме вызываем функцию currRightButtons которая красит кнопки, перезаписывает значение глобальной переменной и даные с сервера записывает вниз инпута с курсом валют 
+
+buttonsRight.forEach((item) => {
+
+    item.addEventListener('click', (event) => {
+        currRightButtons(event.target.innerText)
+        currencyCalculationLeft()
+        // console.log(currencyLeft)
+        // console.log(currencyRight)
+    })
+})
+
+// В правый инпут вставляем Пользовательский ввод из левого инпута умноженный на курс валюты в которую конвертируем
+textInputRight.addEventListener('keyup', (event) => {
+    // currencyCalculationRight();
+
+    clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+        updateValueFromInput(currencyLeft, currencyRight)
+            .then((dataObj) => {
+                if (textInputRight.value) {
+                    let temporary = '';
+                    temporary = textInputRight.value * dataObj.dataTo.toFixed(4);
+                    textInputLeft.value = temporary.toFixed(4);
+
+                }
+            })
+    }, 1000)
+
+
+
+
+})
+
+// при выборе валюты в селекте, значением select.value является строка с значением самой валюты и мы с эти значеием вызываем функцию currRightButtons которая красит кнопки, перезаписывает значение глобальной переменной и даные с сервера записывает вниз инпута с курсом валют 
+selectRight.addEventListener('change', (event) => {
+    currRightButtons(event.target.value)
+
+})
