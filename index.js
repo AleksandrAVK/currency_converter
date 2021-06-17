@@ -147,7 +147,7 @@ textInputRight.addEventListener('keyup', (event) => {
 
                 }
             })
-    }, 1000)
+    }, 500)
 
 
 
@@ -159,3 +159,102 @@ selectRight.addEventListener('change', (event) => {
     currRightButtons(event.target.value)
 
 })
+
+
+//******************************************************************************************************************//
+//                    Код для левой секции (валюты + инпуты пользовательского ввода)                               //
+//                                                                                                                  //
+//******************************************************************************************************************//
+
+// Расчитываем значение валюты. Устанавливаем слушатель на поле ввода суммы валюты и дальнейшего пересчёта в другую валюту и вывода итоговой суммы в противоположное поле 
+
+textInputLeft.addEventListener('keyup', (event) => {
+    clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+        currencyCalculationLeft();
+    }, 500)
+
+})
+
+function currencyCalculationLeft() {
+    updateValueFromInput(currencyLeft, currencyRight)
+        .then((dataObj) => {
+            if (textInputLeft.value) {
+                let temporary = '';
+                temporary = textInputLeft.value * dataObj.dataFrom.toFixed(4);
+                textInputRight.value = temporary.toFixed(4);
+            }
+        })
+}
+
+// Инициируем расчёт значения валюты в правом окне. Т.е 1 рубль(значение по умолчанию в левом инпуте) умножаем на курс доллара  и вставляем в правый инпут;
+currencyCalculationLeft();
+
+// Расчитываем значение (сумма валюты * на курс) и устанавливаем в нужный инпут.Если раскоменируем строку 129 (textInputLeft.value = temporary.toFixed(4);), тогда в левом инпуте будет автоматически пересчитываться значение.Сейчас знаеие пересчитывается олько в правом инпуте.Левый не меняется.
+
+// clearTimeout(timeOutId);
+// timeOutId = setTimeout(()=> {
+function currencyCalculationRight() {
+    updateValueFromInput(currencyLeft, currencyRight)
+        .then((dataObj) => {
+            if (textInputRight.value) {
+                let temporary = '';
+                temporary = textInputRight.value * dataObj.dataTo.toFixed(4);
+                // textInputLeft.value = temporary.toFixed(4);
+
+            }
+        })
+}
+// },500)
+
+
+
+// 
+
+
+/** Устанавливаем валюту в левом инпуте*/
+function currLeftButtons(currency) {
+    // Присваеваем глобальной переменной  currencyRight значение валюты из currency
+    currencyLeft = currency;
+    // Идём по массиву сбрасываем всех в серый цвет
+    changeColorBtn(buttonsLeft, selectLeft, currency);
+
+    updateValueFromInput(currencyLeft, currencyRight)
+        .then((dataObject) => {
+            // console.log(dataObject);
+            currentExchangeRateRight.innerText = `1 ${currencyRight} = ${dataObject.dataFrom.toFixed(4)}  ${currencyLeft}`;
+            currentExchangeRateLeft.innerText = `1 ${currencyLeft} = ${dataObject.dataTo.toFixed(4)}  ${currencyRight}`;
+            textInputRight.value = textInputLeft.value * dataObject.dataFrom.toFixed(4);
+
+        })
+    // // получаем значения из сервера и записываем внизу в инпуте в окне с курсами валют 
+    // updateValueFromInput(currencyLeft, currencyRight)
+    //     .then((dataObject) => {
+    //         currentExchangeRateLeft.innerText = `1 ${currencyLeft} = ${dataObject.dataTo.toFixed(4)}  ${currencyRight}`;
+    //     })
+}
+
+// при выборе валюты в селекте, значением select.value является строка с значением самой валюты и мы с эти значеием вызываем функцию currRightButtons которая красит кнопки, перезаписывает значение глобальной переменной и даные с сервера записывает вниз инпута с курсом валют 
+selectLeft.addEventListener('change', (event) => {
+    currLeftButtons(event.target.value)
+
+})
+
+buttonsLeft.forEach((item) => {
+    item.addEventListener('click', (event) => {
+        currLeftButtons(event.target.innerText)
+    })
+})
+
+
+// ** При клике на кнопку со стрелками мы меняем местами значение валюты и  в правом инпуте пересчитываем значние*/
+
+arrow.addEventListener('click', (event) => {
+    let temporary = currencyLeft;
+    currencyLeft = currencyRight;
+    currencyRight = temporary;
+    currRightButtons(currencyRight);
+    currLeftButtons(currencyLeft);
+    currencyCalculationLeft();
+})
+// console.log(arrow);
