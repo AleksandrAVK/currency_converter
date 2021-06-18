@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <link
+      rel="icon"
+      href="./image/exchange curency-rate.png"
+      type="image/x-icon"
+    />
+    <title>Currency converter</title>
+  </head>
+
+  <body>
+    <div class="converter">
+      <div class="overlay">
+        <div class="loading">Loading</div>
+      </div>
+      <header class="header">
+        <img src="./image/logo.svg" alt="logo" class="logo" />
+        <div class="header__menu">
+          <button class="header__menu_bank header__menu_margin">БАНК</button>
+          <button class="header__menu_bussines header__menu_margin">
+            БИЗНЕС
+          </button>
+          <button class="header__menu_invest header__menu_margin">
+            ИНВЕСТИЦИИ
+          </button>
+          <button class="header__menu_insurance header__menu_margin">
+            СТРАХОВАНИЕ
+          </button>
+          <button class="header__menu_mobile header__menu_margin">
+            МОБАЙЛ
+          </button>
+          <button class="header__menu_travel header__menu_margin">
+            ПУТЕШЕСТВИЯ
+          </button>
+          <button class="header__menu_entertainment header__menu_margin">
+            РАЗВЛЕЧЕНИЯ
+          </button>
+        </div>
+        <div class="signIn">ВОЙТИ</div>
+      </header>
+
+      <h1 class="title">Конвертер валют онлайн</h1>
+      <!-- <div class="calc__side">
+            <p class="converter-period">Данные за 2021-04-08 16:43:47 GMT+03:00</p>
+        </div> -->
+
+      <div class="calc__box">
+        <div class="container__input-left">
+          <h3 class="sublitle__input">У меня есть</h3>
+          <div class="currency-name__block">
+            <button type="submit" class="button buttonLeft">RUB</button>
+            <button type="submit" class="button buttonLeft">USD</button>
+            <button type="submit" class="button buttonLeft">EUR</button>
+            <button type="submit" class="button buttonLeft">GBP</button>
+
+            <select class="select selectLeft" id="select"></select>
+          </div>
+          <div class="inputWithRate">
+            <input
+              class="textarea-input textareaInput-left"
+              name="textareaInput-left"
+              placeholder="1000"
+              value="1"
+              data-reverse="true"
+              type="number"
+              maxlength="12"
+              style="font-size: 24px"
+            />
+            <p class="currentExchangeRateLeft styling">something left</p>
+          </div>
+        </div>
+
+        <button class="arrow">
+          <img src="./image/arrow.svg" alt="arrow" class="arrow-left-right" />
+        </button>
+
+        <div class="container__input-right">
+          <h3 class="sublitle__input">Хочу приобрести</h3>
+          <div class="currency-name__block">
+            <button type="submit" class="button buttonRight">RUB</button>
+            <button type="submit" class="button buttonRight">USD</button>
+            <button type="submit" class="button buttonRight">EUR</button>
+            <button type="submit" class="button buttonRight">GBP</button>
+
+            <select class="select selectRight" id="select"></select>
+          </div>
+          <div class="inputWithRate">
+            <input
+              class="textarea-input textareaInput-right"
+              name="textareaInput-left"
+              placeholder="1000"
+              data-reverse="true"
+              type="number"
+              maxlength="12"
+              style="font-size: 24px"
+            />
+            <p class="currentExchangeRateRight styling">something right</p>
+          </div>
+        </div>
+        <div class="calc__input_box"></div>
+      </div>
+    </div>
+    <script src="./index.js"></script>
+  </body>
+</html>
