@@ -280,7 +280,7 @@ const getFetch = async () => {
 
     let response = await fetch(`https://v6.exchangerate-api.com/v6/bfe77b8783fe3967098b97cd/latest/EUR`)
     const data = await response.json();
-    console.log("data", data.conversion_rates);
+    // console.log("data", data.conversion_rates);
     //******************************************************************************************************************//
         //      АРI  бесплатный. Есть ограничения по количеству запросов. 
         // Создал две учётных записи.Когда лимит запросов на 1 - ой закончится, 
@@ -298,10 +298,10 @@ const getFetch = async () => {
 getFetch()
     .then((data) => {
         let key = Object.keys(data);
-        console.log("data", data, "key", key);
+        // console.log("data", data, "key", key);
         key.forEach((itemKey) => {
             if (itemKey !== "RUB" && itemKey !== "USD" && itemKey !== "EUR" && itemKey !== "GBP" && itemKey !== "BYR") {
-                console.log(itemKey);
+                // console.log(itemKey);
                 select.forEach((selectKey) => {
                     selectOption = document.createElement('option');
                     selectOption.innerText = itemKey;
