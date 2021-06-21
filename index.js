@@ -21,6 +21,13 @@ let loading = document.querySelector('.loading')
 let arrow = document.querySelector('.arrow');
 let timeOutId;
 
+// API бесплатный с ограничением по количеству зпросов. Пришлось делать 3 учётных записи 
+
+let yandexKey = '51c7eb977c01e5b2d833a34f';
+let mail17Key = 'bfe77b8783fe3967098b97cd';
+let mailVinKey = 'f2f1f6ffad4b333ca7c58737';
+
+
 /** Устанавливаем валюту по умолчанию в обоих блоках с инпутами*/
 currRightButtons(currencyRight);
 currLeftButtons(currencyLeft);
@@ -33,7 +40,6 @@ currLeftButtons(currencyLeft);
 //******************************************************************************************************************//
 
 async function updateValueFromInput(from, to) {
-    // console.log(from, to);
 
     try {
         if (from === to) {
@@ -45,19 +51,39 @@ async function updateValueFromInput(from, to) {
             overlay.classList.remove('overlay');
             loading.classList.add('is-active');
         }, 1000)
-        let responseFROM = await fetch(`https://v6.exchangerate-api.com/v6/51c7eb977c01e5b2d833a34f/pair/${from}/${to}`);
+        let responseFROM = await fetch(`https://v6.exchangerate-api.com/v6/bfe77b8783fe3967098b97cd/pair/${from}/${to}`);
         hideOverlay();
+//******************************************************************************************************************//
+        //      АРI  бесплатный. Есть ограничения по количеству запросов. 
+        // Создал две учётных записи.Когда лимит запросов на 1 - ой закончится, 
+        //                 будет использована вторая.
+//******************************************************************************************************************//
 
         const dataFrom = await responseFROM.json();
-        // console.log("из какой валюты стр 52", dataFrom)
-        let responseTO = await fetch(`https://v6.exchangerate-api.com/v6/51c7eb977c01e5b2d833a34f/pair/${to}/${from}`);
+        if (dataFrom === "undefined" || dataFrom === "null" || dataFrom === '') {
+            let responseFROM = await fetch(`https://v6.exchangerate-api.com/v6/f2f1f6ffad4b333ca7c58737/pair/${from}/${to}`);
+            hideOverlay();
+            const dataFrom = await responseFROM.json();
+        }
 
 
+        let responseTO = await fetch(`https://v6.exchangerate-api.com/v6/bfe77b8783fe3967098b97cd/pair/${to}/${from}`);
         clearTimeout(timeOutId);
         hideOverlay();
         const dataTo = await responseTO.json();
-        // console.log(" в какую валюту стр 59", dataTo)
-        // console.log(" в какую конкретно валюту стр 60", dataTo.conversion_rate, dataFrom.conversion_rate)
+
+//******************************************************************************************************************//
+        //      АРI  бесплатный. Есть ограничения по количеству запросов. 
+        // Создал две учётных записи.Когда лимит запросов на 1 - ой закончится, 
+        //                 будет использована вторая.
+//******************************************************************************************************************//
+
+        if (dataTo === "undefined" || dataTo === "null" || dataTo === '') {
+            let responseTO = await fetch(`https://v6.exchangerate-api.com/v6/f2f1f6ffad4b333ca7c58737/pair/${to}/${from}`);
+            clearTimeout(timeOutId);
+            hideOverlay();
+            const dataTo = await responseTO.json();
+        }
 
         return { dataTo: dataTo.conversion_rate, dataFrom: dataFrom.conversion_rate }
     } catch (error) {
@@ -102,8 +128,6 @@ function changeColorBtn(butonSide, selectSide, currency) {
         selectSide.style.backgroundColor = '#833AE0';
         selectSide.value = currency;
     }
-
-    // currencyCalculationRight();
 }
 
 //  достаём значение кнопки через event.target.innerText (вот тут : buttonsRight.forEach((item)) на строке 84 потом записываем в обьявленую глобалью переменную и меняем цвет
@@ -127,8 +151,7 @@ buttonsRight.forEach((item) => {
     item.addEventListener('click', (event) => {
         currRightButtons(event.target.innerText)
         currencyCalculationLeft()
-        // console.log(currencyLeft)
-        // console.log(currencyRight)
+
     })
 })
 
@@ -148,9 +171,6 @@ textInputRight.addEventListener('keyup', (event) => {
                 }
             })
     }, 500)
-
-
-
 
 })
 
@@ -192,20 +212,17 @@ currencyCalculationLeft();
 
 // Расчитываем значение (сумма валюты * на курс) и устанавливаем в нужный инпут.Если раскоменируем строку 129 (textInputLeft.value = temporary.toFixed(4);), тогда в левом инпуте будет автоматически пересчитываться значение.Сейчас знаеие пересчитывается олько в правом инпуте.Левый не меняется.
 
-// clearTimeout(timeOutId);
-// timeOutId = setTimeout(()=> {
 function currencyCalculationRight() {
     updateValueFromInput(currencyLeft, currencyRight)
         .then((dataObj) => {
             if (textInputRight.value) {
                 let temporary = '';
                 temporary = textInputRight.value * dataObj.dataTo.toFixed(4);
-                // textInputLeft.value = temporary.toFixed(4);
 
             }
         })
 }
-// },500)
+
 
 
 
@@ -214,7 +231,7 @@ function currencyCalculationRight() {
 
 /** Устанавливаем валюту в левом инпуте*/
 function currLeftButtons(currency) {
-    // Присваеваем глобальной переменной  currencyRight значение валюты из currency
+    // Присваиваем глобальной переменной  currencyRight значение валюты из currency
     currencyLeft = currency;
     // Идём по массиву сбрасываем всех в серый цвет
     changeColorBtn(buttonsLeft, selectLeft, currency);
@@ -227,14 +244,9 @@ function currLeftButtons(currency) {
             textInputRight.value = textInputLeft.value * dataObject.dataFrom.toFixed(4);
 
         })
-    // // получаем значения из сервера и записываем внизу в инпуте в окне с курсами валют 
-    // updateValueFromInput(currencyLeft, currencyRight)
-    //     .then((dataObject) => {
-    //         currentExchangeRateLeft.innerText = `1 ${currencyLeft} = ${dataObject.dataTo.toFixed(4)}  ${currencyRight}`;
-    //     })
 }
 
-// при выборе валюты в селекте, значением select.value является строка с значением самой валюты и мы с эти значеием вызываем функцию currRightButtons которая красит кнопки, перезаписывает значение глобальной переменной и даные с сервера записывает вниз инпута с курсом валют 
+// ** при выборе валюты в селекте, значением select.value является строка с значением самой валюты и мы с эти значеием вызываем функцию currRightButtons которая красит кнопки, перезаписывает значение глобальной переменной и даные с сервера записывает вниз инпута с курсом валют 
 selectLeft.addEventListener('change', (event) => {
     currLeftButtons(event.target.value)
 
@@ -257,4 +269,75 @@ arrow.addEventListener('click', (event) => {
     currLeftButtons(currencyLeft);
     currencyCalculationLeft();
 })
-// console.log(arrow);
+
+
+//******************************************************************************************************************//
+//                     Получаем список валют из сервера и отрисовываем в селекте на странице                         //
+//                                                                                                                  //
+//******************************************************************************************************************//
+const getFetch = async () => {
+
+
+    let response = await fetch(`https://v6.exchangerate-api.com/v6/bfe77b8783fe3967098b97cd/latest/EUR`)
+    const data = await response.json();
+    console.log("data", data.conversion_rates);
+    //******************************************************************************************************************//
+        //      АРI  бесплатный. Есть ограничения по количеству запросов. 
+        // Создал две учётных записи.Когда лимит запросов на 1 - ой закончится, 
+        //                 будет использована вторая.
+//******************************************************************************************************************//
+
+    if (data === "undefined"  || data === "null" || data === '') {
+        let response = await fetch(`https://v6.exchangerate-api.com/v6/f2f1f6ffad4b333ca7c58737/latest/EUR`)
+        const data = await response.json();
+    }
+    return data.conversion_rates;
+}
+
+
+getFetch()
+    .then((data) => {
+        let key = Object.keys(data);
+        console.log("data", data, "key", key);
+        key.forEach((itemKey) => {
+            if (itemKey !== "RUB" && itemKey !== "USD" && itemKey !== "EUR" && itemKey !== "GBP" && itemKey !== "BYR") {
+                console.log(itemKey);
+                select.forEach((selectKey) => {
+                    selectOption = document.createElement('option');
+                    selectOption.innerText = itemKey;
+                    selectKey.append(selectOption);
+                })
+            }
+        })
+    })
+
+//******************************************************************************************************************//
+//                                       Функция устанавливает timeout                                                                //                                            
+//                                                                                                                  //
+//******************************************************************************************************************//
+//******************************************************************************************************************//
+//                     Функция устанавливает timeout который срабатывает при отсутсвии интернета.                    //
+//      При отсутсвии интернета запросы на сeрвeр преходят в сосояние reject(вместо  fullfield) и ошибка            //
+//   падает в catch. Внутри catch наш timeOut ждёт несколько секунд и устанавливает overlay с надписью LOADING      //                                            
+//                                                                                                                  //
+//******************************************************************************************************************//
+
+function hideOverlay() {
+    overlay.classList.remove('overlayIs-open');
+    overlay.classList.add('overlay');
+    loading.classList.remove('is-active');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
